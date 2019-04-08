@@ -1,1 +1,1 @@
-Little logic gate simulation thing. Will get out of hand in t-2days
+Little logic gate simulation thing. Will get out of hand in t-2days.
