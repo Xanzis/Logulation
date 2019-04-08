@@ -8,6 +8,6 @@ char* RI_name(char *line);
 int RI_nodes(char *line);
 int RI_comps(char *line);
 
-char* RI_line_to_comp(char *line);
+component RI_line_to_comp(char *line, node *nodes, int comp_id);
 
 #endif

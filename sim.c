@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "circstructs.h"
+#include "readin.h"
 
 char *g_name;
 node *g_nodes;
@@ -94,25 +95,25 @@ queueitem* next_component(queueitem *queuepointer) {
 
 queueitem* queue_component(queueitem *queuepointer, component *compp) {
 	// Add a component to the end of the queue iff that component is not already present
-	if (queuepointer == NULL) {
+	if (!queuepointer) {
 		queuepointer = (queueitem*) malloc(sizeof(queueitem));
-		if(queuepointer == NULL) { simerror("Memory error allocating next queueitem\n"); }
+		if(queuepointer == NULL) simerror("Memory error allocating next queueitem\n");
 		*queuepointer = (queueitem) {compp, NULL};
 		return queuepointer;
 	}
 	queueitem *qp = queuepointer;
 	int not_present = 1;
-	while(queuepointer->next != NULL) {
-		if (queuepointer->comp == compp) { not_present = 0; } // Need to check if the pointers are properly compared here.
+	while(queuepointer->next) {
+		if (queuepointer->comp == compp) not_present = 0; // Need to check if the pointers are properly compared here.
 		// Switching to id-based identification may be a solution if this fails
 		queuepointer = queuepointer->next;
 	}
-	if (queuepointer->comp == compp) { not_present = 0; } // To check the last one it stops on
+	if (queuepointer->comp == compp) not_present = 0; // To check the last one it stops on
 	if (not_present) {
 		// Only append to linked list if the component was not already listed
 		// Have now reached the end of the queue. allocate memory for the new item and link from the last node.
 		queueitem *newitem = (queueitem*) malloc(sizeof(queueitem));
-		if(queuepointer == NULL) { simerror("Memory error allocating next queueitem\n"); }
+		if(queuepointer == NULL) simerror("Memory error allocating next queueitem\n");
 		*newitem = (queueitem) {compp, NULL};
 		queuepointer->next = newitem;
 	}
@@ -187,7 +188,7 @@ node** feed(component gate, node *vals, int verbosity) {
 	if (verbosity) { printf("Ins %d %d %d Out %d\n", a, b, c, res); }
 
 	node **changed_locs = (node**) malloc(3 * sizeof(node*));
-	if (changed_locs == NULL) { simerror("Memory error allocating changed_locs\n"); }
+	if (changed_locs == NULL) simerror("Memory error allocating changed_locs\n");
 	for (int i = 0; i <= 2; i++) {
 		changed_locs[i] = NULL;
 	}
@@ -216,7 +217,7 @@ node** feed(component gate, node *vals, int verbosity) {
 	}
 
 	node **out = (node**) malloc((num_changed + 1) * sizeof(node*));
-	if (out == NULL) { simerror("Memory error allocating out\n"); }
+	if (out == NULL) simerror("Memory error allocating out\n");
 	int loc = 0;
 	for (int i = 0; i <= 2; i++) {
 		if (changed_locs[i] != NULL) {
@@ -305,7 +306,7 @@ void setup() {
 
 	g_nodes = (node*) malloc(g_N_nodes * sizeof(node));
 	if (g_nodes == NULL) { simerror("Memory error allocating nodes\n"); }
-	g_components = (component*) malloc(g_N_comps * sizeof(component));
+	g_components = (component*) malloc((g_N_comps + 1) * sizeof(component));
 	if (g_components == NULL) { simerror("Memory error allocating components\n"); }
 
 	g_current_component = (component) {0, '\0', NULL, NULL, NULL, NULL, NULL, NULL};
@@ -314,7 +315,7 @@ void setup() {
 	// Build component array
 
 	for (int i = 3; circ_file[i]; i++) {
-		g_components[i-3] = RI_line_to_comp(circ_file[i]);
+		g_components[i-3] = RI_line_to_comp(circ_file[i], g_nodes, i-2);
 		free(circ_file[i]);
 	}
 	free(circ_file);
@@ -354,7 +355,7 @@ void setup() {
 
 	printf("Structure loaded.\n");
 
-	printf("Propagating all gates... ");
+	printf("Propagating all gates from 0... ");
 	queue_all();
 	int iters = run_until_stable(0);
 	printf("Stability in %d iterations.\n", iters);
