@@ -1,6 +1,8 @@
 # Logulation
 
-A fairly simple logic gate propagation simulator. This was written to experiment with queues and pointers in C. The python program builder.py constructs circuit component objects. Component.compile_structure recursively compiles the circuit as a network of basic logic gates, and returns a representation readable by readin.
+A fairly simple logic gate propagation simulator. This was written to experiment with queues and pointers in C. 
+
+The python program builder.py constructs circuit component objects. Component.compile_structure recursively compiles the circuit as a network of basic logic gates, and returns a representation readable by readin.
 
 ## To Run
 
